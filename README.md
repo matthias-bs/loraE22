@@ -2,8 +2,8 @@
 A MicroPython class for the Ebyte E22 Series LoRa modules
 
 The supported EBYTE E22 modules are based on SEMTECH SX1262/SX1286 chipsets and are available for the 
-400 MHz (410.125~493.125) and
-900 MHz (850.125~930.125) frequency ranges and provide 20 dBm max. TX power.  
+400 MHz (410.125...493.125) and
+900 MHz (850.125...930.125) frequency ranges and provide 20 dBm max. TX power.  
 
 A simple UART interface is used to control the device.
 
