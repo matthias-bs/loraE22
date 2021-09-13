@@ -18,3 +18,7 @@ https://github.com/effevee/loraE32
    - mode control
 2. The E22 or E32 modules do not seem to be suitable for LoRaWAN communication
    (e.g. The Things Network)
+
+## CAUTION
+
+Command/Response handling via UART is still flaky...
