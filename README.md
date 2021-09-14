@@ -7,6 +7,11 @@ The supported EBYTE E22 modules are based on SEMTECH SX1262/SX1286 chipsets and 
 
 A simple UART interface is used to control the device.
 
+**EBYTE Datasheets:**<br>
+[E22-900T22D](https://www.ebyte.com/en/product-view-news.html?id=1117)<br>
+[E22-400T22D](https://www.ebyte.com/en/product-view-news.html?id=922)
+
+
 The loraE22 class is based on the loraE22 class by effevee:
 https://github.com/effevee/loraE32
 
