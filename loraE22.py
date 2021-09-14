@@ -108,7 +108,6 @@
 ######################################################################
 
 from machine import Pin, UART
-from time import sleep
 import utime
 import ujson
 import binascii
@@ -162,7 +161,7 @@ class ebyteE22:
     TXPOWER = { 0b00:'22dBm', 0b01:'17dBm', 0b10:'13dBm', 0b11:'10dBm' }
     WORCTRL = { 0:'WOR receiver', 1:'WOR transmitter' }
     #  Sub packet setting
-    SUBPINV = { '240B':0b00, '128B':0b01, '64B':0b10, '32B':0b11 }
+    SUBPINV = { '240B':'00', '128B':'01', '64B':'10', '32B':'11' }
     SUBPCKT = { 0b00:'240B', 0b01:'128B', 0b10:'64B', 0b11:'32B' }
     
 
@@ -178,6 +177,7 @@ class ebyteE22:
         self.config['address'] = Address           # target address (default 0x0000)
         self.config['netid'] = Netid               # Network address
         self.config['channel'] = Channel           # target channel (0-31, default 0x06)
+        self.config['amb_noise'] = 0
         self.config['transmode'] = 0               # transmission mode (default 0 - tranparent)
         self.config['repeater'] = 0                # repeater mode (default 0 - disable repeater function)
         self.config['lbt'] = 0                     # LBT enable (default 0 - disable disabled)
@@ -224,6 +224,7 @@ class ebyteE22:
             self.AUX = Pin(self.PinAUX, Pin.IN, Pin.PULL_UP)
             if self.debug:
                 print(self.M0, self.M1, self.AUX)
+            utime.sleep_ms(500)
             self.waitForDeviceIdle()
             return "OK"
         
@@ -375,19 +376,13 @@ class ebyteE22:
             if self.debug:
                 print(HexCmd)
             num = self.serdev.write(bytes(HexCmd))
-            print("sendCommand() - bytes sent:", num)
+            #print("sendCommand() - bytes sent:", num)
+            self.waitForDeviceIdle()  
             # wait for result
-            utime.sleep_ms(50)
-            self.waitForDeviceIdle()
-            # read result
-            if command == 'reset':
-                result = ''
-            else:
-                # wait for result
-                result = self.serdev.read()
-                # debug
-                if self.debug:
-                    print(result)
+            result = self.serdev.read()
+            # debug
+            if self.debug:
+                print(result)
             return result
         
         except Exception as E:
@@ -446,6 +441,7 @@ class ebyteE22:
         self.config['lbt'] = int(bits[3])
         self.config['worctrl'] = int(bits[4])
         self.config['wutime'] = int('0b' + bits[5:])
+        #print(self.config)
     
     def encodeConfig(self):
         ''' encode the config dictionary to create the config message of the ebyte E22 LoRa module '''
@@ -468,19 +464,19 @@ class ebyteE22:
         bits += ebyteE22.BAUDRATE.get(self.config['baudrate'])
         bits += ebyteE22.PARSTR.get(self.config['parity'])
         bits += ebyteE22.DATARATE.get(self.config['datarate'])
-        print("REG0:", bits)
+        #print("REG0:", bits)
         message.append(int(bits))
         # message byte 7 = REG1 (Sub packet setting, Ambient noise enable, Transmitting power)
         bits = '0b'
         # Bits 7:6 - Sub packet setting
         bits += ebyteE22.SUBPINV.get('240B')
         # Bit 5 - RSSI Ambient Noise Enable
-        bits += self.config['amb_noise']
+        bits += str(self.config['amb_noise'])
         # Bits 4:2 - reserved
         bits += '000'
         # Bits 1:0 - Transmitting power
         bits += '{0:02b}'.format(ebyteE22.MAXPOW.get('T22'))
-        print("REG1:", bits)
+        #print("REG1:", bits)
         message.append(int(bits))
         # message byte 8 = REG2 (channel control)
         message.append(self.config['channel'])
@@ -498,7 +494,7 @@ class ebyteE22:
         bits += str(self.config['worctrl'])
         # Bits 2:0 - WOR cycle
         bits += '{0:03b}'.format(self.config['wutime'])
-        print("REG3:", bits)
+        #print("REG3:", bits)
         message.append(int(bits))
         return message
     
@@ -551,13 +547,24 @@ class ebyteE22:
         
     def waitForDeviceIdle(self):
         ''' Wait for the E22 LoRa module to become idle (AUX pin high) '''
+        # FIXME: Check if AUX actually turns low after receiving a config cmd
         count = 0
         # loop for device busy
+        while self.AUX.value():
+            count += 1
+            # maximum wait time 200 ms
+            if count == 10:
+                #if self.debug:
+                    #print('waitForDeviceIdle(): AUX=0 - TIMEOUT!')
+                break
+            utime.sleep_ms(20)
+        count = 0
         while not self.AUX.value():
             # increment count
             count += 1
             # maximum wait time 100 ms
             if count == 10:
+                print('waitForDeviceIdle(): AUX=1 - TIMEOUT!')
                 break
             # sleep for 10 ms
             utime.sleep_ms(10)
@@ -595,7 +602,7 @@ class ebyteE22:
             # send the command
             result = self.sendCommand(save_cmd)
             # check result
-            if len(result) != 6:
+            if len(result) != 10:
                 return "NOK"
             # debug
             if self.debug:
@@ -618,8 +625,8 @@ class ebyteE22:
         self.waitForDeviceIdle()
         # get operation mode settings (default normal)
         bits = ebyteE22.OPERMODE.get(mode, '00')
-        if self.debug:
-            print("setOperationMode(): ", bits[1], bits[0])
+        #if self.debug:
+        #print("setOperationMode(): ", bits[1], bits[0])
         # set operation mode
         self.M0.value(int(bits[0]))
         self.M1.value(int(bits[1]))
