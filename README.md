@@ -15,6 +15,8 @@ A simple UART interface is used to control the device.
 The loraE22 class is based on the loraE22 class by effevee:
 https://github.com/effevee/loraE32
 
+**Connect proper antenna before transmitting!**
+
 ## NOTE
 
 1. The E22 and E32 are different in many details - 
