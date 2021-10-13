@@ -5,6 +5,7 @@
 # receiving fixed point to point
 ###########################################
 # transmitter - address 0001 - channel 02
+# message     - address 0003 - channel 04
 # receiver    - address 0003 - channel 04
 ###########################################
 
@@ -15,9 +16,11 @@ M0pin = 25
 M1pin = 26
 AUXpin = 14
 
-e22 = ebyteE22(M0pin, M1pin, AUXpin, Address=0x0003, Channel=0x04, debug=False)
+e22 = ebyteE22(M0pin, M1pin, AUXpin, Port='U2', Address=0x0003, Channel=0x04, debug=True)
 
 e22.start()
+
+e22.getConfig()
 
 from_address = 0x0001
 from_channel = 0x02
