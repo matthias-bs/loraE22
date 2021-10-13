@@ -30,7 +30,7 @@ https://github.com/effevee/loraE32
 
 Transmission mode | TX (Addr - Ch) | RX (Addr - Ch) | MSG (Addr - Ch) | Transmitter Code | Receiver Code
 :---: | :------: | :------: | :------: | :----: | :----:
-|transparent|0x0001 - 0x02|0x0001 - 0x02|0x0001 - 0x02|[testSendE32_Transparent.py](examples/testSendE32_Transparent.py)|[testRecvE32_Transparent.py](examples/testRecvE32_Transparent.py)
-|fixed P2P|0x0001 - 0x02|0x0003 - 0x04|0x0003 - 0x04|[testSendE32_P2P.py](examples/testSendE32_P2P.py)|[testRecvE32_P2P.py](examples/testRecvE32_P2P.py)
-|fixed broadcast|0x0001 - 0x02|0x0003 - 0x04|0xFFFF - 0x04|[testSendE32_Broadcast.py](examples/testSendE32_Broadcast.py)|[testRecvE32_Broadcast.py](examples/testRecvE32_Broadcast.py)
-|fixed monitor|0x0001 - 0x02|0xFFFF - 0x04|0x0003 - 0x04|[testSendE32_Monitor.py](examples/testSendE32_Monitor.py)|[testRecvE32_Monitor.py](examples/testRecvE32_Monitor.py)
+|transparent|0x0001 - 0x02|0x0001 - 0x02|0x0001 - 0x02|[testSendE22_Transparent.py](examples/testSendE22_Transparent.py)|[testRecvE22_Transparent.py](examples/testRecvE22_Transparent.py)
+|fixed P2P|0x0001 - 0x02|0x0003 - 0x04|0x0003 - 0x04|[testSendE22_P2P.py](examples/testSendE22_P2P.py)|[testRecvE22_P2P.py](examples/testRecvE22_P2P.py)
+|fixed broadcast|0x0001 - 0x02|0x0003 - 0x04|0xFFFF - 0x04|[testSendE22_Broadcast.py](examples/testSendE22_Broadcast.py)|[testRecvE22_Broadcast.py](examples/testRecvE22_Broadcast.py)
+|fixed monitor|0x0001 - 0x02|0xFFFF - 0x04|0x0003 - 0x04|[testSendE22_Monitor.py](examples/testSendE22_Monitor.py)|[testRecvE22_Monitor.py](examples/testRecvE22_Monitor.py)
