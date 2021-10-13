@@ -21,9 +21,16 @@ https://github.com/effevee/loraE32
    - commands
    - register layout
    - mode control
+   - AUX signal timing (in Configuration mode, AUX cannot be used to detect completion of command/response sequence)
 2. The E22 or E32 modules do not seem to be suitable for LoRaWAN communication
    (e.g. The Things Network)
 
-## CAUTION
+## Test code
+**Note:** The E22 test code differs from the E32 test code in terms of used UART and AUX pin! 
 
-Command/Response handling via UART is still flaky...
+Transmission mode | TX (Addr - Ch) | RX (Addr - Ch) | Transmitter Code | Receiver Code
+:---: | :------: | :------: | :----: | :----:
+|transparent|0x0001 - 0x02|0x0001 - 0x02|[testSendE32_Transparent.py](examples/testSendE32_Transparent.py)|[testRecvE32_Transparent.py](examples/testRecvE32_Transparent.py)
+|fixed P2P|0x0001 - 0x02|0x0003 - 0x04|[testSendE32_P2P.py](examples/testSendE32_P2P.py)|[testRecvE32_P2P.py](examples/testRecvE32_P2P.py)
+|fixed broadcast|0x0001 - 0x02|0x0003 - 0x04|[testSendE32_Broadcast.py](examples/testSendE32_Broadcast.py)|[testRecvE32_Broadcast.py](examples/testRecvE32_Broadcast.py)
+|fixed monitor|0x0001 - 0x02|0xFFFF - 0x04|[testSendE32_Monitor.py](examples/testSendE32_Monitor.py)|[testRecvE32_Monitor.py](examples/testRecvE32_Monitor.py)
