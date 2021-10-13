@@ -32,12 +32,16 @@
 # History:
 #
 # 20210913 initial release (not tested thoroughly)
+# 20211013 fixed configuration timing and setting of configuration in start()
 #
 # NOTE:
 # 1. The E22 and E32 are different in many details - 
 #   - commands
 #   - register layout
 #   - mode control
+#   - AUX signal timing -
+#     in Configuration mode, AUX cannot be used to
+#     detect completion of command/response sequence
 # 2. The E22 or E32 do not seem to be suitable for LoRaWAN communication
 #    (e.g. The Things Network)
 #
@@ -224,8 +228,10 @@ class ebyteE22:
             self.AUX = Pin(self.PinAUX, Pin.IN, Pin.PULL_UP)
             if self.debug:
                 print(self.M0, self.M1, self.AUX)
-            utime.sleep_ms(500)
+            self.setOperationMode('config')
             self.waitForDeviceIdle()
+            # set config to the ebyte E22 LoRa module
+            self.setConfig('setConfigPwrDwnSave')
             return "OK"
         
         except Exception as E:
@@ -251,8 +257,7 @@ class ebyteE22:
                 # fixed transmission mode
                 # only the module with the target address and channel will receive the payload
                 self.setTransmissionMode(1)
-            # put into wakeup mode (includes preamble signals to wake up device in powersave or sleep mode)
-            self.setOperationMode('wakeup')
+            self.setOperationMode('normal')
             # check payload
             if type(payload) != dict:
                 print('payload is not a dictionary')
@@ -363,6 +368,11 @@ class ebyteE22:
             self.setOperationMode('config')
             # send command
             HexCmd = ebyteE22.CMDS.get(command)
+            # response time - time between complete transmission of command and reception of response
+            # (FIXME how about wireless command?)
+            # 200ms for 'setConfigPwrDwnSave'
+            #  30ms for all other commands
+            resp_time = 200 if HexCmd==0xC0 else 30
             if HexCmd in [0xC0, 0xC2]:        # set config to device
                 header = HexCmd
                 HexCmd = self.encodeConfig()
@@ -376,8 +386,7 @@ class ebyteE22:
             if self.debug:
                 print(HexCmd)
             num = self.serdev.write(bytes(HexCmd))
-            #print("sendCommand() - bytes sent:", num)
-            self.waitForDeviceIdle()  
+            utime.sleep_ms(resp_time)
             # wait for result
             result = self.serdev.read()
             # debug
@@ -547,24 +556,13 @@ class ebyteE22:
         
     def waitForDeviceIdle(self):
         ''' Wait for the E22 LoRa module to become idle (AUX pin high) '''
-        # FIXME: Check if AUX actually turns low after receiving a config cmd
-        count = 0
-        # loop for device busy
-        while self.AUX.value():
-            count += 1
-            # maximum wait time 200 ms
-            if count == 10:
-                #if self.debug:
-                    #print('waitForDeviceIdle(): AUX=0 - TIMEOUT!')
-                break
-            utime.sleep_ms(20)
         count = 0
         while not self.AUX.value():
             # increment count
             count += 1
             # maximum wait time 100 ms
             if count == 10:
-                print('waitForDeviceIdle(): AUX=1 - TIMEOUT!')
+                print('waitForDeviceIdle(): TIMEOUT!')
                 break
             # sleep for 10 ms
             utime.sleep_ms(10)
