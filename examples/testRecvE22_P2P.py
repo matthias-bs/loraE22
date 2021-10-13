@@ -16,7 +16,7 @@ M0pin = 25
 M1pin = 26
 AUXpin = 14
 
-e22 = ebyteE22(M0pin, M1pin, AUXpin, Port='U2', Address=0x0003, Channel=0x04, debug=True)
+e22 = ebyteE22(M0pin, M1pin, AUXpin, Port='U2', Address=0x0003, Channel=0x04, debug=False)
 
 e22.start()
 
