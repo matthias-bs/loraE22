@@ -2,16 +2,6 @@
 # MicroPython bi-directional point-to-point LoRa transmission using loraE22
 # (Tested with ESP32-WROOM-32 modules) 
 #
-# Each node sends a message at a fixed interval containing an LED control 
-# value according to the state of a push button.
-# Afterwards it checks for received messages. If a message with LED control
-# value is available, the LED is switched accordingly.
-#
-# The transmission mode (address/channel config) for the local node and the
-# peer node can be set as desired in the arrays <addr> and <chan>.
-#
-# The code of node0.py and node1.py is identical except for the settings of
-# the variables <me> and <peer>.
 #
 # Copyright (C) 10/2021 Matthias Prinke
 # 
@@ -56,6 +46,9 @@ key = Pin(KEYpin, Pin.IN)
 
 e22 = ebyteE22(M0pin, M1pin, AUXpin, Port='U2', Address=addr[me], Channel=chan[me], debug=False)
 
+# enable appending of RSSI to RX message
+e22.config['rssi'] = 1
+
 e22.start()
 
 while True:
@@ -67,6 +60,7 @@ while True:
     #print(rx_msg)
     if ('led' in rx_msg):
         print('Node %d RX: address %d - channel %d - message %s'%(me, addr[peer], chan[peer], rx_msg))
+        print('-> LED: %s, RSSI=%d dBm'%(rx_msg['led'], rx_msg['rssi']))
         rx_val = 0 if rx_msg['led'] == '0' else 1 
         led.value(rx_val)
     utime.sleep_ms(2000)
