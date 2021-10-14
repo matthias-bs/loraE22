@@ -33,6 +33,7 @@
 #
 # 20210913 initial release (not tested thoroughly)
 # 20211013 fixed configuration timing and setting of configuration in start()
+# 20211014 added optional output of RSSI
 #
 # NOTE:
 # 1. The E22 and E32 are different in many details - 
@@ -182,6 +183,7 @@ class ebyteE22:
         self.config['netid'] = Netid               # Network address
         self.config['channel'] = Channel           # target channel (0-31, default 0x06)
         self.config['amb_noise'] = 0
+        self.config['rssi'] = 0
         self.config['transmode'] = 0               # transmission mode (default 0 - tranparent)
         self.config['repeater'] = 0                # repeater mode (default 0 - disable repeater function)
         self.config['lbt'] = 0                     # LBT enable (default 0 - disable disabled)
@@ -315,10 +317,17 @@ class ebyteE22:
             # did we receive anything ?
             if js_payload == None:
                 # nothing
-                return { 'msg':None }
+                return { 'msg':None, 'rssi':None }
             else :
                 # decode message
                 msg = ''
+                if self.config['rssi']:
+                    rssi = js_payload[-1]
+                    # convert byte value to dBm
+                    rssi = -(256 - rssi)
+                    js_payload = js_payload[:-1]
+                else:
+                    rssi = None
                 for i in range(len(js_payload)):
                     msg += chr(js_payload[i])
                 # checksum check
@@ -326,10 +335,12 @@ class ebyteE22:
                     cs = int(self.calcChecksum(msg),16)
                     if cs != 0:
                         # corrupt
-                        return { 'msg':'corrupt message, checksum ' + str(cs) }
+                        return { 'msg':'corrupt message, checksum ' + str(cs), 'rssi':rssi }
                     else:
                         # message ok, remove checksum
                         msg = msg[:-1]
+                # Add rssi to JSON string
+                msg = msg[:-1] + ',"rssi":' + str(rssi) + '}'
                 # JSON to dictionary
                 message = ujson.loads(msg)
                 return message
@@ -489,10 +500,10 @@ class ebyteE22:
         message.append(int(bits))
         # message byte 8 = REG2 (channel control)
         message.append(self.config['channel'])
-        # message byte 9 = REG3 (enable_rssi, transmode, enable_repeater, enable_lbt, wor_control, wor_cycle)
+        # message byte 9 = REG3 (rssi, transmode, enable_repeater, enable_lbt, wor_control, wor_cycle)
         bits = '0b'
         # Bit 7 - Enable RSSI
-        bits += '0'
+        bits += str(self.config['rssi'])
         # Bit 6 - Transmission mode 
         bits += str(self.config['transmode'])
         # Bit 5 - Enable enable_repeater
