@@ -57,7 +57,7 @@ Node0 | Node1
 
 ## Range test setup
 
-The LoRa transmitter sends a string containing its chip id and a message sequence number at a fixed interval. 
+The LoRa transmitter sends a string containing its chip ID and a message sequence number at a fixed interval. 
 
 The LoRa receiver prints/logs _\<timestamp\>,\<latitude\>,\<longitude\>,\<altitude\>,\<rssi\>_ at a pre-defined interval.
 
