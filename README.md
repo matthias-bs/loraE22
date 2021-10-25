@@ -91,4 +91,4 @@ See [rssi_csv_to_kml.py](range_test/rssi_csv_to_kml.py) - The KML output file pr
 displayed with the elevation plot in GoogleEarth. (Usage: `rssi_csv_to_kml.py log_deadbeef.csv >log_deadbeef.kml`)
 
 ![google_earth_elevation_plot_w_rssi](https://user-images.githubusercontent.com/83612361/138741016-65af87f3-f257-42dd-a63e-b09cc4f8651c.png)
-Note: The plot just serves as an example - the logging interval should have been shorter.
+Note: The plot just serves as an example - the logging interval should have been shorter and the logging strategy has been modified afterwards.
