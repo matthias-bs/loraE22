@@ -64,7 +64,7 @@ The LoRa receiver prints/logs _\<timestamp\>,\<latitude\>,\<longitude\>,\<altitu
 The receiver's position and a timestamp are decoded from NMEA messages received via UART from a GPS receiver.
 
 If available, incoming LoRa messages are received from the ebyteE22 LoRa transceiver module via another UART.
-If the messages expected from the LoRa transmitter could not be received for a certain time, an rssi value of
+If the messages expected from the LoRa transmitter could not be received for a certain time, an RSSI value of
 -255 dBm is assumed, indicating loss of the LoRa radio link.
 
 The tuple _\<timestamp\>,\<latitude\>,\<longitude\>,\<altitude\>,\<rssi\>_ is printed and optionally written to a log file
@@ -75,7 +75,8 @@ The log files are written to MicroPython's internal file system. Logging must be
 file cannot be closed properly and will be corrupt/empty.
 
 Log files can be converted from CSV-format to a suitable format - such as GPX or KML - on the host later.
-See [rssi_csv_to_kml.py](range_test/rssi_csv_to_kml.py). (Usage: `rssi_csv_to_kml.py log_deadbeef.csv >log_deadbeef.kml`)
+See [rssi_csv_to_kml.py](range_test/rssi_csv_to_kml.py) - The KML output file provides the RSSI value as extended data to be
+displayed with the elevation plot in GoogleEarth. (Usage: `rssi_csv_to_kml.py log_deadbeef.csv >log_deadbeef.kml`)
 
 Two LEDs indicate the state of the GPS fix and the LoRa link, respectively.
 
