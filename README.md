@@ -85,3 +85,4 @@ See [rssi_csv_to_kml.py](range_test/rssi_csv_to_kml.py) - The KML output file pr
 displayed with the elevation plot in GoogleEarth. (Usage: `rssi_csv_to_kml.py log_deadbeef.csv >log_deadbeef.kml`)
 
 ![google_earth_elevation_plot_w_rssi](https://user-images.githubusercontent.com/83612361/138738880-691d83cf-bf70-4840-b2f5-ee7fccc401e5.png)
+Note: The plot just serves as an example - most of the distance covered comes from position noise acquired over a few hours while the transmitter (not the receiver, though) has been taken out for a walk during the last couple of hundred meters.  
