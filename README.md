@@ -71,7 +71,7 @@ The tuple _\<timestamp\>,\<latitude\>,\<longitude\>,\<altitude\>,\<rssi\>_ is pr
 only if a valid position is available.
 
 If logging is enabled, a filename in the format *log_\<8_random_hex_digits_\>.csv* is created after power-on or reset.
-The log files are written to MicroPython's internal file system. Logging must be stopped explicitly, otherwise the 
+The log files are written to MicroPython's internal file system. Logging must be stopped explicitly by pressing a key, otherwise the 
 file cannot be closed properly and will be corrupt/empty.
 
 Log files can be converted from CSV-format to a suitable format - such as GPX or KML - on the host later.
