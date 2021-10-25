@@ -67,7 +67,7 @@ The LoRa transmitter sends a string containing its chip ID and a message sequenc
 
 The LoRa receiver prints/logs _\<timestamp\>,\<latitude\>,\<longitude\>,\<altitude\>,\<rssi\>_ at a pre-defined interval.
 
-The receiver's position and a timestamp are decoded from NMEA messages received via UART from a GPS receiver.
+The receiver's position and a timestamp are decoded from NMEA messages received via UART from a GPS receiver. For this purpose, [micropyGPS](https://github.com/inmcm/micropyGPS) is used.
 
 If available, incoming LoRa messages are received from the ebyteE22 LoRa transceiver module via another UART.
 If the messages expected from the LoRa transmitter could not be received for a certain time, an RSSI value of
