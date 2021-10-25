@@ -54,3 +54,31 @@ the variables *me* and *peer*.
 Node0 | Node1
 :---: | :---: 
 [node0.py](examples/node0.py)|[node1.py](examples/node1.py)
+
+## Range test setup
+
+The LoRa transmitter sends a string containing its chip id and a message sequence number at a fixed interval. 
+
+The LoRa receiver prints/logs _\<timestamp\>,\<latitude\>,\<longitude\>,\<altitude\>,\<rssi\>_ at a pre-defined interval.
+
+The receiver's position and a timestamp are decoded from NMEA messages received via UART from a GPS receiver.
+
+If available, incoming LoRa messages are received from the ebyteE22 LoRa transceiver module via another UART.
+If the messages expected from the LoRa transmitter could not be received for a certain time, an rssi value of
+-255 dBm is assumed, indicating loss of the LoRa radio link.
+
+The tuple _\<timestamp\>,\<latitude\>,\<longitude\>,\<altitude\>,\<rssi\>_ is printed and optionally written to a log file
+only if a valid position is available.
+
+If logging is enabled, a filename in the format *log_\<8_random_hex_digits_\>.csv* is created after power-on or reset.
+The log files are written to MicroPython's internal file system. Logging must be stopped explicitly, otherwise the 
+file cannot be closed properly and will be corrupt/empty.
+
+Log files can be converted from CSV-format to a suitable format - such as GPX or KML - on the host later.
+See [rssi_csv_to_kml.py](range_test/rssi_csv_to_kml.py). (Usage: `rssi_csv_to_kml.py log_deadbeef.csv >log_deadbeef.kml`)
+
+Two LEDs indicate the state of the GPS fix and the LoRa link, respectively.
+
+Transmitter Node | Receiver Node
+:---: | :---: 
+[lora_tx.py](range_test/lora_tx.py)|[lora_rssi_logger.py](range_test/lora_rssi_logger.py)
