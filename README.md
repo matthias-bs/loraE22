@@ -84,5 +84,5 @@ Log files can be converted from CSV-format to a suitable format - such as GPX or
 See [rssi_csv_to_kml.py](range_test/rssi_csv_to_kml.py) - The KML output file provides the RSSI value as extended data to be
 displayed with the elevation plot in GoogleEarth. (Usage: `rssi_csv_to_kml.py log_deadbeef.csv >log_deadbeef.kml`)
 
-![google_earth_elevation_plot_w_rssi](https://user-images.githubusercontent.com/83612361/138738880-691d83cf-bf70-4840-b2f5-ee7fccc401e5.png)
-Note: The plot just serves as an example - most of the distance covered comes from position noise acquired over a few hours while the transmitter (not the receiver, though) has been taken out for a walk during the last couple of hundred meters.  
+![google_earth_elevation_plot_w_rssi](https://user-images.githubusercontent.com/83612361/138741016-65af87f3-f257-42dd-a63e-b09cc4f8651c.png)
+Note: The plot just serves as an example - the logging interval should have been shorter.
