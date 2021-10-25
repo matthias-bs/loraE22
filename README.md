@@ -27,6 +27,12 @@ https://github.com/effevee/loraE32
 2. The E22 or E32 modules do not seem to be suitable for LoRaWAN communication
    (e.g. The Things Network)
 
+## Minimal NodeMCU-ESP32 hardware setup
+
+![NodeMCU-ESP32](20211014_134055_1.jpg)
+
+See code for pin configuration.
+
 ## Test code
 **Notes:** The loraE22 test code differs from the E32 test code in terms of used UART and AUX pin! Furthermore, loraE22 uses 'normal mode', while loraE32 uses 'wakeup mode' in *sendMessage()*. 
 
