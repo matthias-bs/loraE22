@@ -74,12 +74,14 @@ If logging is enabled, a filename in the format *log_\<8_random_hex_digits_\>.cs
 The log files are written to MicroPython's internal file system. Logging must be stopped explicitly by pressing a key, otherwise the 
 file cannot be closed properly and will be corrupt/empty.
 
-Log files can be converted from CSV-format to a suitable format - such as GPX or KML - on the host later.
-See [rssi_csv_to_kml.py](range_test/rssi_csv_to_kml.py) - The KML output file provides the RSSI value as extended data to be
-displayed with the elevation plot in GoogleEarth. (Usage: `rssi_csv_to_kml.py log_deadbeef.csv >log_deadbeef.kml`)
-
 Two LEDs indicate the state of the GPS fix and the LoRa link, respectively.
 
 Transmitter Node | Receiver Node
 :---: | :---: 
 [lora_tx.py](range_test/lora_tx.py)|[lora_rssi_logger.py](range_test/lora_rssi_logger.py)
+
+Log files can be converted from CSV-format to a suitable format - such as GPX or KML - on the host later.
+See [rssi_csv_to_kml.py](range_test/rssi_csv_to_kml.py) - The KML output file provides the RSSI value as extended data to be
+displayed with the elevation plot in GoogleEarth. (Usage: `rssi_csv_to_kml.py log_deadbeef.csv >log_deadbeef.kml`)
+
+![google_earth_elevation_plot_w_rssi](https://user-images.githubusercontent.com/83612361/138738880-691d83cf-bf70-4840-b2f5-ee7fccc401e5.png)
