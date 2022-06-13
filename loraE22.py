@@ -20,7 +20,7 @@
 # 400 MHz (410.125~493.125)
 # and
 # 900 MHz (850.125~930.125)
-# frequency ranges and provide 20 dBm max. TX power.  
+# frequency ranges and provide 22 dBm max. TX power.
 #
 # A simple UART interface is used to control the device.
 #
@@ -149,6 +149,7 @@ class ebyteE22:
     # version info frequency
     FREQV = { '0x32':433, '0x38':470, '0x45':868, '0x44':915, '0x46':170 }
     # model maximum transmission power
+    #FIXME do we still need this? 
     MAXPOW = { 'T22':0, 'T17':1, 'T13':2, 'T10':3 }
     # RSSI enable
     RSSI = { 0:'disable', 1:'enable' }
@@ -164,13 +165,15 @@ class ebyteE22:
                0b100:'2500ms', 0b101:'3000ms', 0b110:'3500ms', 0b111:'4000ms' }
     # transmission power T20/T27/T30 (dBm)
     TXPOWER = { 0b00:'22dBm', 0b01:'17dBm', 0b10:'13dBm', 0b11:'10dBm' }
+    TXPWRINV= { '22dBm':0b00, '17dBm':0b01, '13dBm':0b10, '19dBm':0b11 }
+
     WORCTRL = { 0:'WOR receiver', 1:'WOR transmitter' }
     #  Sub packet setting
     SUBPINV = { '240B':'00', '128B':'01', '64B':'10', '32B':'11' }
     SUBPCKT = { 0b00:'240B', 0b01:'128B', 0b10:'64B', 0b11:'32B' }
     
 
-    def __init__(self, PinM0, PinM1, PinAUX, Model='900T20D', Port='U1', Baudrate=9600, Parity='8N1', AirDataRate='2.4k', Address=0x0000, Netid=0x00, Channel=0x06, RSSI=0,debug=False):
+    def __init__(self, PinM0, PinM1, PinAUX, Model='900T22D', Port='U1', Baudrate=9600, Parity='8N1', AirDataRate='2.4k', Address=0x0000, Netid=0x00, Channel=0x06, RSSI=0, TXpower='22dBm',debug=False):
         ''' constructor for ebyte E32 LoRa module '''
         # configuration in dictionary
         self.config = {}
@@ -189,7 +192,7 @@ class ebyteE22:
         self.config['lbt'] = 0                     # LBT enable (default 0 - disable disabled)
         self.config['worctrl'] = 0                 # WOR transceiver control (default 0 - WOR receiver)
         self.config['wutime'] = 3                  # wakeup time from sleep mode (default 3 = 2000ms)
-        self.config['txpower'] = 0                 # transmission power (default 0 = 20dBm/100mW)
+        self.config['txpower'] =self.TXPWRINV.get(TXpower,0) # transmission power (default 0 = 22dBm/158mW)
         # 
         self.PinM0 = PinM0                         # M0 pin number
         self.PinM1 = PinM1                         # M1 pin number
@@ -497,7 +500,7 @@ class ebyteE22:
         # Bits 4:2 - reserved
         bits += '000'
         # Bits 1:0 - Transmitting power
-        bits += '{0:02b}'.format(ebyteE22.MAXPOW.get('T22'))
+        bits += '{0:02b}'.format(self.config['txpower'])
         #print("REG1:", bits)
         message.append(int(bits))
         # message byte 8 = REG2 (channel control)
