@@ -170,7 +170,7 @@ class ebyteE22:
     SUBPCKT = { 0b00:'240B', 0b01:'128B', 0b10:'64B', 0b11:'32B' }
     
 
-    def __init__(self, PinM0, PinM1, PinAUX, Model='900T20D', Port='U1', Baudrate=9600, Parity='8N1', AirDataRate='2.4k', Address=0x0000, Netid=0x00, Channel=0x06, debug=False):
+    def __init__(self, PinM0, PinM1, PinAUX, Model='900T20D', Port='U1', Baudrate=9600, Parity='8N1', AirDataRate='2.4k', Address=0x0000, Netid=0x00, Channel=0x06, RSSI=0,debug=False):
         ''' constructor for ebyte E32 LoRa module '''
         # configuration in dictionary
         self.config = {}
@@ -183,7 +183,7 @@ class ebyteE22:
         self.config['netid'] = Netid               # Network address
         self.config['channel'] = Channel           # target channel (0-31, default 0x06)
         self.config['amb_noise'] = 0
-        self.config['rssi'] = 0
+        self.config['rssi'] = RSSI
         self.config['transmode'] = 0               # transmission mode (default 0 - tranparent)
         self.config['repeater'] = 0                # repeater mode (default 0 - disable repeater function)
         self.config['lbt'] = 0                     # LBT enable (default 0 - disable disabled)
@@ -338,7 +338,11 @@ class ebyteE22:
                         # message ok, remove checksum
                         msg = msg[:-1]
                 # Add rssi to JSON string
-                msg = msg[:-1] + ',"rssi":' + str(rssi) + '}'
+                if (rssi != None):
+                    msg = msg[:-1] + ',"rssi":' + str(rssi) + '}'
+                else:
+                    # Note 'None' is not defined in JSON, use null instead
+                    msg = msg[:-1] + ',"rssi": null }'
                 # JSON to dictionary
                 message = ujson.loads(msg)
                 return message
