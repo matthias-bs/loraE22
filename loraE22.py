@@ -122,7 +122,7 @@ class ebyteE22:
     ''' class to interface an ESP32 via serial commands to the EBYTE E32 Series LoRa modules '''
     
     # UART ports
-    PORT = { 'U1':1, 'U2':2 }
+    PORT = { 'U0':0, 'U1':1, 'U2':2 , 'U3':3}
     # UART parity strings
     PARSTR = { '8N1':'00', '8O1':'01', '8E1':'10' }
     PARINV = { v:k for k, v in PARSTR.items() }
@@ -218,10 +218,8 @@ class ebyteE22:
             if self.config['channel'] > 31:
                 self.config['channel'] = 31
             # make UART instance
-            self.serdev = UART(ebyteE22.PORT.get(self.config['port']))
-            # init UART
             par = ebyteE22.PARBIT.get(str(self.config['parity'])[1])
-            self.serdev.init(baudrate=self.config['baudrate'], bits=8, parity=None, stop=1)
+            self.serdev = UART(ebyteE22.PORT.get(self.config['port']),baudrate=self.config['baudrate'], bits=8, parity=None, stop=1)
             if self.debug:
                 print(self.serdev)
             # make operation mode & device status instances
