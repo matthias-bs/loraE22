@@ -134,7 +134,8 @@ class ebyteE22:
     BAUDRINV = { v:k for k, v in BAUDRATE.items() }
     # LoRa datarate
     DATARATE = { '0.3k':'000', '1.2k':'001', '2.4k':'010',
-                 '4.8k':'011', '9.6k':'100', '19.2k':'101' }
+                 '4.8k':'011', '9.6k':'100', '19.2k':'101',
+                 '38.4k':'110','62.5k':'111' }
     DATARINV = { v:k for k, v in DATARATE.items() }
     # Commands
     CMDS = { 'setConfigPwrDwnSave':0xC0,
