@@ -1,7 +1,8 @@
 ###############################################################################
 # MicroPython class for EBYTE E22 Series LoRa modules
 # Copyright (C) 09/2021 Matthias Prinke
-# 
+# Copyright (C) 06/2022 Heinz-Bernd Eggenstein
+#
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation, either version 3 of the License, or
@@ -34,6 +35,7 @@
 # 20210913 initial release (not tested thoroughly)
 # 20211013 fixed configuration timing and setting of configuration in start()
 # 20211014 added optional output of RSSI
+# 20220614 adapted for RP2040 UART implementation, other minor fixes and additions
 #
 # NOTE:
 # 1. The E22 and E32 are different in many details - 
