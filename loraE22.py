@@ -450,11 +450,11 @@ class ebyteE22:
         # message byte 6 = REG0
         bits = '{0:08b}'.format(message[6])
         self.config['baudrate'] = ebyteE22.BAUDRINV.get(bits[0:3])
-        self.config['parity'] = ebyteE22.PARINV.get(bits[4:6])
+        self.config['parity'] = ebyteE22.PARINV.get(bits[3:5])
         self.config['datarate'] = ebyteE22.DATARINV.get(bits[5:])
         # message byte 7 = REG1
         bits = '{0:08b}'.format(message[7])
-        self.config['subpckt'] = int('0b' + bits[0:1])
+        self.config['subpckt'] = int('0b' + bits[0:2])
         self.config['amb_noise'] = int(bits[2])
         self.config['txpower'] = int('0b' + bits[6:])
         # message byte 8 = REG2 (channel)
