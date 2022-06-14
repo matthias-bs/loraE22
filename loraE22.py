@@ -1,7 +1,8 @@
 ###############################################################################
 # MicroPython class for EBYTE E22 Series LoRa modules
 # Copyright (C) 09/2021 Matthias Prinke
-# 
+# Copyright (C) 06/2022 Heinz-Bernd Eggenstein
+#
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation, either version 3 of the License, or
@@ -20,7 +21,7 @@
 # 400 MHz (410.125~493.125)
 # and
 # 900 MHz (850.125~930.125)
-# frequency ranges and provide 20 dBm max. TX power.  
+# frequency ranges and provide 22 dBm max. TX power.
 #
 # A simple UART interface is used to control the device.
 #
@@ -34,6 +35,7 @@
 # 20210913 initial release (not tested thoroughly)
 # 20211013 fixed configuration timing and setting of configuration in start()
 # 20211014 added optional output of RSSI
+# 20220614 adapted for RP2040 UART implementation, other minor fixes and additions
 #
 # NOTE:
 # 1. The E22 and E32 are different in many details - 
@@ -122,7 +124,7 @@ class ebyteE22:
     ''' class to interface an ESP32 via serial commands to the EBYTE E32 Series LoRa modules '''
     
     # UART ports
-    PORT = { 'U1':1, 'U2':2 }
+    PORT = { 'U0':0, 'U1':1, 'U2':2 , 'U3':3}
     # UART parity strings
     PARSTR = { '8N1':'00', '8O1':'01', '8E1':'10' }
     PARINV = { v:k for k, v in PARSTR.items() }
@@ -134,7 +136,8 @@ class ebyteE22:
     BAUDRINV = { v:k for k, v in BAUDRATE.items() }
     # LoRa datarate
     DATARATE = { '0.3k':'000', '1.2k':'001', '2.4k':'010',
-                 '4.8k':'011', '9.6k':'100', '19.2k':'101' }
+                 '4.8k':'011', '9.6k':'100', '19.2k':'101',
+                 '38.4k':'110','62.5k':'111' }
     DATARINV = { v:k for k, v in DATARATE.items() }
     # Commands
     CMDS = { 'setConfigPwrDwnSave':0xC0,
@@ -149,6 +152,7 @@ class ebyteE22:
     # version info frequency
     FREQV = { '0x32':433, '0x38':470, '0x45':868, '0x44':915, '0x46':170 }
     # model maximum transmission power
+    #FIXME do we still need this? 
     MAXPOW = { 'T22':0, 'T17':1, 'T13':2, 'T10':3 }
     # RSSI enable
     RSSI = { 0:'disable', 1:'enable' }
@@ -164,13 +168,21 @@ class ebyteE22:
                0b100:'2500ms', 0b101:'3000ms', 0b110:'3500ms', 0b111:'4000ms' }
     # transmission power T20/T27/T30 (dBm)
     TXPOWER = { 0b00:'22dBm', 0b01:'17dBm', 0b10:'13dBm', 0b11:'10dBm' }
+    TXPWRINV= { '22dBm':0b00, '17dBm':0b01, '13dBm':0b10, '19dBm':0b11 }
+
     WORCTRL = { 0:'WOR receiver', 1:'WOR transmitter' }
     #  Sub packet setting
     SUBPINV = { '240B':'00', '128B':'01', '64B':'10', '32B':'11' }
     SUBPCKT = { 0b00:'240B', 0b01:'128B', 0b10:'64B', 0b11:'32B' }
     
+    #FIXME Support for setting the encryption key is currently missing. Note the encryption key is handled somewhat differently
+    #FIXME compared to other configuration settings, as the key cannot be read from the E22 with the C1 command
+    #FIXME It is probably possible to set the encryption key remotely via the CF CF command prefix (??!!!?) so you might not want
+    #FIXME to leave your E22 exposed with the default key of 0x0000 (16 bit keys are still too short and in real life uses
+    #FIXME other than fun projectsm, you might want to periodically refresh the configuration settings and/or add P2P encryption on
+    #FIXME the payload level
 
-    def __init__(self, PinM0, PinM1, PinAUX, Model='900T20D', Port='U1', Baudrate=9600, Parity='8N1', AirDataRate='2.4k', Address=0x0000, Netid=0x00, Channel=0x06, debug=False):
+    def __init__(self, PinM0, PinM1, PinAUX, Model='900T22D', Port='U1', Baudrate=9600, Parity='8N1', AirDataRate='2.4k', Address=0x0000, Netid=0x00, Channel=0x06, transmode=0, RSSI=0, TXpower='22dBm',debug=False):
         ''' constructor for ebyte E32 LoRa module '''
         # configuration in dictionary
         self.config = {}
@@ -183,13 +195,13 @@ class ebyteE22:
         self.config['netid'] = Netid               # Network address
         self.config['channel'] = Channel           # target channel (0-31, default 0x06)
         self.config['amb_noise'] = 0
-        self.config['rssi'] = 0
-        self.config['transmode'] = 0               # transmission mode (default 0 - tranparent)
+        self.config['rssi'] = RSSI
+        self.config['transmode'] = transmode       # transmission mode (default 0 - tranparent)
         self.config['repeater'] = 0                # repeater mode (default 0 - disable repeater function)
         self.config['lbt'] = 0                     # LBT enable (default 0 - disable disabled)
         self.config['worctrl'] = 0                 # WOR transceiver control (default 0 - WOR receiver)
         self.config['wutime'] = 3                  # wakeup time from sleep mode (default 3 = 2000ms)
-        self.config['txpower'] = 0                 # transmission power (default 0 = 20dBm/100mW)
+        self.config['txpower'] =self.TXPWRINV.get(TXpower,0) # transmission power (default 0 = 22dBm/158mW)
         # 
         self.PinM0 = PinM0                         # M0 pin number
         self.PinM1 = PinM1                         # M1 pin number
@@ -198,6 +210,7 @@ class ebyteE22:
         self.M1 = None                             # instance for M1 Pin (set operation mode)
         self.AUX = None                            # instance for AUX Pin (device status : 0=busy - 1=idle)
         self.serdev = None                         # instance for UART
+        #FIXME needs to be different for the E22-400 models 
         self.minfreq = 850.125                     # Minimum frequency (frequency = (minfreq + CH) [MHz]
         self.debug = debug
         #
@@ -218,10 +231,8 @@ class ebyteE22:
             if self.config['channel'] > 31:
                 self.config['channel'] = 31
             # make UART instance
-            self.serdev = UART(ebyteE22.PORT.get(self.config['port']))
-            # init UART
             par = ebyteE22.PARBIT.get(str(self.config['parity'])[1])
-            self.serdev.init(baudrate=self.config['baudrate'], bits=8, parity=None, stop=1)
+            self.serdev = UART(ebyteE22.PORT.get(self.config['port']),baudrate=self.config['baudrate'], bits=8, parity=None, stop=1)
             if self.debug:
                 print(self.serdev)
             # make operation mode & device status instances
@@ -297,6 +308,9 @@ class ebyteE22:
             - transparent mode : payload will be received if the module has the same address and channel of the transmitter
             - fixed mode : only payloads from transmitters with this address and channel will be received;
                            if the address is 0xFFFF, payloads from all transmitters with this channel will be received'''
+        #FIXME actually this code doesn't try to switch the receiving channel if it is different than the configured channel
+        #FIXME so setting a different channel has only the effect of forcing "fixed" TX mode, but the channel on which 
+        #FIXME messages are to be received is not changed. 
         try:
             # type of transmission
             if (from_address == self.config['address']) and (from_channel == self.config['channel']):
@@ -340,7 +354,11 @@ class ebyteE22:
                         # message ok, remove checksum
                         msg = msg[:-1]
                 # Add rssi to JSON string
-                msg = msg[:-1] + ',"rssi":' + str(rssi) + '}'
+                if (rssi != None):
+                    msg = msg[:-1] + ',"rssi":' + str(rssi) + '}'
+                else:
+                    # Note 'None' is not defined in JSON, use null instead
+                    msg = msg[:-1] + ',"rssi": null }'
                 # JSON to dictionary
                 message = ujson.loads(msg)
                 return message
@@ -381,9 +399,9 @@ class ebyteE22:
             HexCmd = ebyteE22.CMDS.get(command)
             # response time - time between complete transmission of command and reception of response
             # (FIXME how about wireless command?)
-            # 200ms for 'setConfigPwrDwnSave'
+            # 200ms for 'setConfigPwrDwnSave' and 'setConfigPwrDwnNoSave'
             #  30ms for all other commands
-            resp_time = 200 if HexCmd==0xC0 else 30
+            resp_time = 200 if HexCmd in [0xC0, 0xC2] else 30
             if HexCmd in [0xC0, 0xC2]:        # set config to device
                 header = HexCmd
                 HexCmd = self.encodeConfig()
@@ -444,11 +462,11 @@ class ebyteE22:
         # message byte 6 = REG0
         bits = '{0:08b}'.format(message[6])
         self.config['baudrate'] = ebyteE22.BAUDRINV.get(bits[0:3])
-        self.config['parity'] = ebyteE22.PARINV.get(bits[4:6])
+        self.config['parity'] = ebyteE22.PARINV.get(bits[3:5])
         self.config['datarate'] = ebyteE22.DATARINV.get(bits[5:])
         # message byte 7 = REG1
         bits = '{0:08b}'.format(message[7])
-        self.config['subpckt'] = int('0b' + bits[0:1])
+        self.config['subpckt'] = int('0b' + bits[0:2])
         self.config['amb_noise'] = int(bits[2])
         self.config['txpower'] = int('0b' + bits[6:])
         # message byte 8 = REG2 (channel)
@@ -495,7 +513,7 @@ class ebyteE22:
         # Bits 4:2 - reserved
         bits += '000'
         # Bits 1:0 - Transmitting power
-        bits += '{0:02b}'.format(ebyteE22.MAXPOW.get('T22'))
+        bits += '{0:02b}'.format(self.config['txpower'])
         #print("REG1:", bits)
         message.append(int(bits))
         # message byte 8 = REG2 (channel control)
@@ -565,18 +583,23 @@ class ebyteE22:
             return "NOK"  
 
         
-    def waitForDeviceIdle(self):
+    def waitForDeviceIdle(self,timeout=200):
         ''' Wait for the E22 LoRa module to become idle (AUX pin high) '''
-        count = 0
+        count = timeout//10
         while not self.AUX.value():
-            # increment count
-            count += 1
-            # maximum wait time 100 ms
-            if count == 10:
+            # maximum wait time 200 ms by default
+            # FIXME probably the timeout should depend on
+            # the airdatarate, as long packets in
+            # low data rates can keep the device busy a long time????
+
+            if count == 0:
                 print('waitForDeviceIdle(): TIMEOUT!')
                 break
             # sleep for 10 ms
             utime.sleep_ms(10)
+            # decrement count
+            count -= 1
+
             
             
     def saveConfigToJson(self):
