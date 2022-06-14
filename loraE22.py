@@ -174,7 +174,7 @@ class ebyteE22:
     SUBPCKT = { 0b00:'240B', 0b01:'128B', 0b10:'64B', 0b11:'32B' }
     
 
-    def __init__(self, PinM0, PinM1, PinAUX, Model='900T22D', Port='U1', Baudrate=9600, Parity='8N1', AirDataRate='2.4k', Address=0x0000, Netid=0x00, Channel=0x06, RSSI=0, TXpower='22dBm',debug=False):
+    def __init__(self, PinM0, PinM1, PinAUX, Model='900T22D', Port='U1', Baudrate=9600, Parity='8N1', AirDataRate='2.4k', Address=0x0000, Netid=0x00, Channel=0x06, transmode=0, RSSI=0, TXpower='22dBm',debug=False):
         ''' constructor for ebyte E32 LoRa module '''
         # configuration in dictionary
         self.config = {}
@@ -188,7 +188,7 @@ class ebyteE22:
         self.config['channel'] = Channel           # target channel (0-31, default 0x06)
         self.config['amb_noise'] = 0
         self.config['rssi'] = RSSI
-        self.config['transmode'] = 0               # transmission mode (default 0 - tranparent)
+        self.config['transmode'] = transmode       # transmission mode (default 0 - tranparent)
         self.config['repeater'] = 0                # repeater mode (default 0 - disable repeater function)
         self.config['lbt'] = 0                     # LBT enable (default 0 - disable disabled)
         self.config['worctrl'] = 0                 # WOR transceiver control (default 0 - WOR receiver)
