@@ -25,7 +25,7 @@
 #
 # A simple UART interface is used to control the device.
 #
-# The loraE22 class is based on the loraE22 class by effevee:
+# The loraE22 class is based on the loraE32 class by effevee:
 # https://github.com/effevee/loraE32
 #
 # created: 09/2021
