@@ -387,9 +387,9 @@ class ebyteE22:
             HexCmd = ebyteE22.CMDS.get(command)
             # response time - time between complete transmission of command and reception of response
             # (FIXME how about wireless command?)
-            # 200ms for 'setConfigPwrDwnSave'
+            # 200ms for 'setConfigPwrDwnSave' and 'setConfigPwrDwnNoSave'
             #  30ms for all other commands
-            resp_time = 200 if HexCmd==0xC0 else 30
+            resp_time = 200 if HexCmd in [0xC0, 0xC2] else 30
             if HexCmd in [0xC0, 0xC2]:        # set config to device
                 header = HexCmd
                 HexCmd = self.encodeConfig()
@@ -571,18 +571,23 @@ class ebyteE22:
             return "NOK"  
 
         
-    def waitForDeviceIdle(self):
+    def waitForDeviceIdle(self,timeout=200):
         ''' Wait for the E22 LoRa module to become idle (AUX pin high) '''
-        count = 0
+        count = timeout//10
         while not self.AUX.value():
-            # increment count
-            count += 1
-            # maximum wait time 100 ms
-            if count == 10:
+            # maximum wait time 200 ms by default
+            # FIXME probably the timeout should depend on
+            # the airdatarate, as long packets in
+            # low data rates can keep the device busy a long time????
+
+            if count == 0:
                 print('waitForDeviceIdle(): TIMEOUT!')
                 break
             # sleep for 10 ms
             utime.sleep_ms(10)
+            # decrement count
+            count -= 1
+
             
             
     def saveConfigToJson(self):
