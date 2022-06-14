@@ -19,7 +19,7 @@ https://github.com/effevee/loraE32
 
 **Connect proper antenna before transmitting!**
 
-**Before use, check your local regulations for using this frequency range. E.g. in most of Europe, the maximum allowed TX power is below the default value of 22 dBm! There might also be additional restrictions, e.g. restrictions on the duty cycle of your transmissions (that is the fraction of air time to the total time spanned during a period of using the device)! **
+**Before use, check your local regulations for using this frequency range. E.g. in most of Europe, the maximum allowed TX power is below the default value of 22 dBm! There might also be additional restrictions, e.g. restrictions on the duty cycle of your transmissions (that is the fraction of air time to the total time spanned during a period of using the device)!**
 
 ## NOTE
 
