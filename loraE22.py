@@ -175,6 +175,12 @@ class ebyteE22:
     SUBPINV = { '240B':'00', '128B':'01', '64B':'10', '32B':'11' }
     SUBPCKT = { 0b00:'240B', 0b01:'128B', 0b10:'64B', 0b11:'32B' }
     
+    #FIXME Support for setting the encryption key is currently missing. Note the encryption key is handled somewhat differently
+    #FIXME compared to other configuration settings, as the key cannot be read from the E22 with the C1 command
+    #FIXME It is probably possible to set the encryption key remotely via the CF CF command prefix (??!!!?) so you might not want
+    #FIXME to leave your E22 exposed with the default key of 0x0000 (16 bit keys are still too short and in real life uses
+    #FIXME other than fun projectsm, you might want to periodically refresh the configuration settings and/or add P2P encryption on
+    #FIXME the payload level
 
     def __init__(self, PinM0, PinM1, PinAUX, Model='900T22D', Port='U1', Baudrate=9600, Parity='8N1', AirDataRate='2.4k', Address=0x0000, Netid=0x00, Channel=0x06, transmode=0, RSSI=0, TXpower='22dBm',debug=False):
         ''' constructor for ebyte E32 LoRa module '''
@@ -204,6 +210,7 @@ class ebyteE22:
         self.M1 = None                             # instance for M1 Pin (set operation mode)
         self.AUX = None                            # instance for AUX Pin (device status : 0=busy - 1=idle)
         self.serdev = None                         # instance for UART
+        #FIXME needs to be different for the E22-400 models 
         self.minfreq = 850.125                     # Minimum frequency (frequency = (minfreq + CH) [MHz]
         self.debug = debug
         #
@@ -301,6 +308,9 @@ class ebyteE22:
             - transparent mode : payload will be received if the module has the same address and channel of the transmitter
             - fixed mode : only payloads from transmitters with this address and channel will be received;
                            if the address is 0xFFFF, payloads from all transmitters with this channel will be received'''
+        #FIXME actually this code doesn't try to switch the receiving channel if it is different than the configured channel
+        #FIXME so setting a different channel has only the effect of forcing "fixed" TX mode, but the channel on which 
+        #FIXME messages are to be received is not changed. 
         try:
             # type of transmission
             if (from_address == self.config['address']) and (from_channel == self.config['channel']):
