@@ -12,7 +12,7 @@ A simple UART interface is used to control the device.
 [E22-400T22D](https://www.ebyte.com/en/product-view-news.html?id=922)
 
 
-The loraE22 class is based on the loraE22 class by effevee:
+The loraE22 class is based on the loraE32 class by effevee:
 https://github.com/effevee/loraE32
 
 ## Warnings
