@@ -168,7 +168,7 @@ class ebyteE22:
                0b100:'2500ms', 0b101:'3000ms', 0b110:'3500ms', 0b111:'4000ms' }
     # transmission power T20/T27/T30 (dBm)
     TXPOWER = { 0b00:'22dBm', 0b01:'17dBm', 0b10:'13dBm', 0b11:'10dBm' }
-    TXPWRINV= { '22dBm':0b00, '17dBm':0b01, '13dBm':0b10, '19dBm':0b11 }
+    TXPWRINV= { '22dBm':0b00, '17dBm':0b01, '13dBm':0b10, '10dBm':0b11 }
 
     WORCTRL = { 0:'WOR receiver', 1:'WOR transmitter' }
     #  Sub packet setting
