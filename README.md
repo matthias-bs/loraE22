@@ -21,7 +21,7 @@ https://github.com/effevee/loraE32
 
 **Before use, check your local regulations for using this frequency range. E.g. in most of Europe, the maximum allowed TX power is below the default value of 22 dBm! There might also be additional restrictions, e.g. restrictions on the duty cycle of your transmissions (that is the fraction of air time to the total time spanned during a period of using the device)!**
 
-## NOTE
+## NOTES
 
 1. The E22 and E32 are different in many details - 
    - commands
@@ -30,6 +30,7 @@ https://github.com/effevee/loraE32
    - AUX signal timing (in Configuration mode, AUX cannot be used to detect completion of command/response sequence)
 2. The E22 or E32 modules do not seem to be suitable for LoRaWAN communication
    (e.g. The Things Network)
+3. See https://github.com/matthias-bs/loraE22/issues/6 for compatibility issues with newer (V2.1) E22 modules
 
 ## Minimal NodeMCU-ESP32 hardware setup
 
